@@ -1,0 +1,5 @@
+
+cd ../ffmpeg/
+
+curl -X PUT -H "Content-Type: video/mp4" -H "Host: storage.googleapis.com" --upload-file assembly-line.mp4 \
+    "https://storage.googleapis.com/temp-bucket-01936b24/assembly-line.mp4?x-goog-signature=8c98dc34504d2828d1b7bd9a6cec5934924261367e4443240f8ae1d33724fa63d9080ae906696378aa525591f0f986e25e3a6dac3330e89ae32088e97670cb05f91ca57a452051abe0774438ca06276b6208c5bbd1d1d70a6dfe2914c03e59f125f3aa23e6ee9679cb7255f3e6cedd64869ad6e36c531bcc66a98ec7a6b9c266bcfcb94d15392020092f5525b75713a6c2e24683f0063805db3a32d1fdb86c95c8168f55543cff999ba46c7fac0e596a54778fbbcb68208382dbc1fc7c64d1600cc606f9d96b377da132d8d5a68a176a9621c7dcd21a767647db354959fca42b5d77ed53390cbba8b426e56b636624cec3c5dfe582f879fb833ffe4dc3737e35&x-goog-algorithm=GOOG4-RSA-SHA256&x-goog-credential=user-o1%40concise-base-454512-t2.iam.gserviceaccount.com%2F20250510%2Fasia-south2%2Fstorage%2Fgoog4_request&x-goog-date=20250510T133405Z&x-goog-expires=3600&x-goog-signedheaders=Content-Type%3Bhost"

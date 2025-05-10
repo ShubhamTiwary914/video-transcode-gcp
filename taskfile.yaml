@@ -1,0 +1,11 @@
+version: '3'
+
+
+includes:
+  tests: 
+    taskfile: ./tests
+    dir: ./tests
+
+  src:
+    taskfile: ./src
+    dir: ./src
