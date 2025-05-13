@@ -23,9 +23,3 @@ resource "google_storage_bucket" "static" {
     } 
 }
 
-resource "google_storage_bucket_object" "demo" {
-  name = "samplefile.txt"
-  source = "/home/dev/work/projects/video-transcode/tests/sample.txt"
-  content_type = "text/plain"
-  bucket = google_storage_bucket.static.id
-}

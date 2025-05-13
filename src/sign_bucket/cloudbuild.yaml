@@ -1,0 +1,12 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker:latest'
+    args: [
+      'build',
+        '--network=cloudbuild', '-t', 
+          'asia-south2-docker.pkg.dev/$_PROJECT_ID/docker-repository/${_TARGET_IMAGE_URI}', 
+          '.'
+    ]
+    dir: 'custom_serving_container/PT'
+
+images: ['asia-south2-docker.pkg.dev/$_PROJECT_ID/docker-repository/${_TARGET_IMAGE_URI}']
+timeout: 3600s

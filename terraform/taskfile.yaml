@@ -1,0 +1,20 @@
+  
+version: '3'  
+
+tasks:  
+  init:
+    cmds:
+      - terraform init 
+  
+  plan:
+    cmds:
+      - terraform plan
+
+  apply:
+    cmds:
+      - terraform apply
+
+  destroy:
+    cmds:
+      - terraform destroy
+

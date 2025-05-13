@@ -3,26 +3,6 @@ version: '3'
 
 
 tasks:
-  tf-init:
-    dir: terraform
-    cmds:
-      - terraform init 
-  
-  tf-plan:
-    dir: terraform
-    cmds:
-      - terraform plan
-
-  tf-apply:
-    dir: terraform
-    cmds:
-      - terraform apply
-
-  tf-destroy:
-    dir: terraform
-    cmds:
-      - terraform destroy
-
   go-run-main:
     dir: go-hello
     cmds:

@@ -2,10 +2,14 @@ version: '3'
 
 
 includes:
-  tests: 
-    taskfile: ./tests
-    dir: ./tests
+  cmp: 
+    taskfile: ./components
+    dir: ./components
 
   src:
     taskfile: ./src
     dir: ./src
+
+  terraform:
+    taskfile: ./terraform
+    dir: ./terraform 

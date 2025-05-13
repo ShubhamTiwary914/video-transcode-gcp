@@ -1,2 +1,14 @@
 version: '3'
 
+
+tasks:
+  sign-compile:
+    dir: ./sign_bucket
+    cmds: 
+      - tsc --skipLibCheck
+
+  s3-sign-get:
+    dir: ./sign_bucket/dist
+    deps: [sign-compile]
+    cmds: 
+      - node sign.js
