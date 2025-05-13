@@ -15,7 +15,11 @@ app.post('/', async (req: Request<{}, {}, { bucket: string; filename: string }>,
     const url = await generate_signedURLv4(bucket, filename, ttl_mins);
   
     res.json({ url });
- });
+});
+
+app.get('/health', (req: Request,res: Response)=>{
+    res.send(`Server is healthy, running@PORT:${port}`)
+})
   
 
 async function generate_signedURLv4(bucketName: string, fileName: string, ttl_mins: number) : Promise<string>{

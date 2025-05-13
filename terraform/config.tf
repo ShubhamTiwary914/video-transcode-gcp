@@ -22,3 +22,7 @@ variable "region_bucket" {
 variable "artifact_reponame" {
   description = "Repository name for Artifact Registry"
 }
+
+variable "artifact_packagename_signbucket" {
+  description = "Package name under the Artifact Repository"
+}
