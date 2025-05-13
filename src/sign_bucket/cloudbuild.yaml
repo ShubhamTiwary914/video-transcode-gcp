@@ -2,14 +2,17 @@ steps:
   - name: 'gcr.io/cloud-builders/docker:latest'
     args: [
       'build',
-        '--network=cloudbuild', '-t', 
-          'asia-south2-docker.pkg.dev/$_PROJECT_ID/docker-repository/${_TARGET_IMAGE_URI}', 
-          '.'
+      '--network=cloudbuild',
+      '-t',
+      'asia-south2-docker.pkg.dev/$_PROJECT_ID/$_ARTIFACT_REPO/$_TARGET_IMAGE_URI',
+      '.'
     ]
     dir: 'src/sign_bucket'
 
 options:
   logging: CLOUD_LOGGING_ONLY
 
-images: ['asia-south2-docker.pkg.dev/$_PROJECT_ID/docker-repository/${_TARGET_IMAGE_URI}']
+images:
+  - 'asia-south2-docker.pkg.dev/$_PROJECT_ID/$_ARTIFACT_REPO/$_TARGET_IMAGE_URI'
+
 timeout: 3600s

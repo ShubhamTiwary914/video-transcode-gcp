@@ -7,7 +7,7 @@ resource "random_id" "suffix" {
 
 resource "google_storage_bucket" "static" {
     name = "temp-bucket-${random_id.suffix.hex}"
-    location = "ASIA-SOUTH2"
+    location = var.region_bucket 
     force_destroy = true
     uniform_bucket_level_access = true 
 
