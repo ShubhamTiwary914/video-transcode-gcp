@@ -6,7 +6,10 @@ steps:
           'asia-south2-docker.pkg.dev/$_PROJECT_ID/docker-repository/${_TARGET_IMAGE_URI}', 
           '.'
     ]
-    dir: 'custom_serving_container/PT'
+    dir: 'src/sign_bucket'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
 
 images: ['asia-south2-docker.pkg.dev/$_PROJECT_ID/docker-repository/${_TARGET_IMAGE_URI}']
 timeout: 3600s
