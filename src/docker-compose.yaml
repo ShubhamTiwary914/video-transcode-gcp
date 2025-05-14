@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  signer:
+    build:
+      context: ./sign_bucket
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    image: signer-app
