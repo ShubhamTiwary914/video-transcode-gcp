@@ -2,9 +2,17 @@ import  { GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 import express, { Request, Response } from "express"  
 
 
-const app = express()
-const storage = new Storage()
+let storage : Storage
+try{
+    storage = new Storage()
+}
+catch(err){
+    console.log(err)
+    throw err;
+}
 
+
+const app = express()
 const ttl_mins = 15
 const port = process.env.PORT || 8080 
 

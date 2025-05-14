@@ -11,6 +11,11 @@ variable "project_id" {
   description = "GCP Project ID"
 }
 
+variable "project_number" {
+  description = "GCP Project Number"
+}
+
+
 variable "region" {
   description = "GCP Project region"
 }
@@ -25,4 +30,13 @@ variable "artifact_reponame" {
 
 variable "artifact_packagename_signbucket" {
   description = "Package name under the Artifact Repository"
+}
+
+
+variable "default_SA" {
+  description = "Email of GCP default service account for the project"
+}
+
+variable "user_SA" {
+  description = "Email of GCP 2nd user service account for the project"
 }

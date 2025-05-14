@@ -1,19 +1,25 @@
 import { Storage } from '@google-cloud/storage';
 import express from "express";
+let storage;
+try {
+    storage = new Storage();
+}
+catch (err) {
+    console.log(err);
+    throw err;
+}
 const app = express();
-const storage = new Storage({
-    keyFilename: '/home/dev/.keys/user-o1-gcp.json'
-});
 const ttl_mins = 15;
-const port = 8080;
+const port = process.env.PORT || 8080;
 app.use(express.json());
-app.get('/', async (req, res) => {
-    let bucket = req.body['bucket'];
-    let fileName = req.body['filename'];
-    let url = await generate_signedURLv4(bucket, fileName, ttl_mins);
-    res.json({
-        url
-    });
+app.post('/', async (req, res) => {
+    const { bucket, filename } = req.body;
+    const url = await generate_signedURLv4(bucket, filename, ttl_mins);
+    res.json({ url });
+});
+app.get('/health', (req, res) => {
+    console.log(`GET /health called!`);
+    res.send(`Server is healthy, running@PORT:${port}`);
 });
 async function generate_signedURLv4(bucketName, fileName, ttl_mins) {
     const options = {
@@ -25,5 +31,6 @@ async function generate_signedURLv4(bucketName, fileName, ttl_mins) {
 app.listen(port, () => {
     console.log(`Server successfully connected @PORT:${port}`);
 }).on('error', (err) => {
+    console.log(err);
     throw err;
 });
