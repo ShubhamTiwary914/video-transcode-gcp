@@ -8,14 +8,12 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 
-app = FastAPI()
-
-
-
-
 class SignParams(BaseModel):
     bucket: str
-    filename: str 
+    filename: str
+
+
+app = FastAPI()
 
 
 
@@ -25,8 +23,14 @@ def health_check():
 
 
 @app.get("/")
-def fetch_signURL(params: SignParams):
-    return make_signed_upload_url(params.bucket, params.bucket)
+def fetch_signURL(bucket: str, filename: str):
+    return make_signed_upload_url(bucket, filename)
+
+
+@app.post("/")
+def fetch_signURL_POST(params: SignParams):
+    return make_signed_upload_url(params.bucket, params.filename)
+
 
 
 
