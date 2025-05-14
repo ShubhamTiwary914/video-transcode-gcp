@@ -24,12 +24,12 @@ def health_check():
 
 @app.get("/")
 def fetch_signURL(bucket: str, filename: str):
-    return make_signed_upload_url(bucket, filename)
+    return { "GCS-URI": make_signed_upload_url(bucket, filename) }
 
 
 @app.post("/")
 def fetch_signURL_POST(params: SignParams):
-    return make_signed_upload_url(params.bucket, params.filename)
+    return { "GCS-URI": make_signed_upload_url(params.bucket, params.filename) }
 
 
 
