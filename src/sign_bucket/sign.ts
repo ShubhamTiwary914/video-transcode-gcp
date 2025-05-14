@@ -18,6 +18,7 @@ app.post('/', async (req: Request<{}, {}, { bucket: string; filename: string }>,
 });
 
 app.get('/health', (req: Request,res: Response)=>{
+    console.log(`GET /health called!`)
     res.send(`Server is healthy, running@PORT:${port}`)
 })
   
@@ -35,5 +36,6 @@ async function generate_signedURLv4(bucketName: string, fileName: string, ttl_mi
 app.listen(port, ()=>{
     console.log(`Server successfully connected @PORT:${port}`)
 }).on('error', (err)=>{
+    console.log(err);
     throw err;
 })
