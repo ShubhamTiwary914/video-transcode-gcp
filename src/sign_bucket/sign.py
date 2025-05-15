@@ -60,8 +60,9 @@ def make_signed_upload_url(bucket: str, blob: str,*, content_type="video/mp4",
     return blob.generate_signed_url(
         version="v4",
         expiration=exp,
+        service_account_email=credentials.service_account_email,
+        access_token=credentials.token, 
         method="PUT",
         content_type=content_type,
         headers={"X-Goog-Content-Length-Range": f"{min_size},{max_size}"},
-        credentials=credentials 
     )
