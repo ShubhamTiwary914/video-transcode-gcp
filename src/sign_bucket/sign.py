@@ -6,7 +6,6 @@ from google import auth
 from google.auth.transport import requests
 from google.cloud.storage import Client
 from fastapi import FastAPI
-from pydantic import BaseModel
 from google.oauth2 import service_account
 
 from dotenv import load_dotenv
@@ -48,10 +47,11 @@ def GCS_PUT_signedURL_SA(bucket: str, blob: str,*, content_type="video/mp4",
     return blob.generate_signed_url(
         version="v4",
         expiration=exp,
+        service_account_email=credentials.service_account_email,
+        access_token=credentials.token,
         method="PUT",
         content_type=content_type,
-        headers={"Content-Type": content_type},
-        credentials=credentials 
+        headers={"Content-Type": content_type}
     )
 
 
