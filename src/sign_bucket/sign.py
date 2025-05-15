@@ -1,4 +1,5 @@
-from typing import Optional, Union
+import os
+from typing import Optional
 from datetime import timedelta
 
 from google import auth
@@ -6,14 +7,12 @@ from google.auth.transport import requests
 from google.cloud.storage import Client
 from fastapi import FastAPI
 from pydantic import BaseModel
+from google.oauth2 import service_account
+
+from dotenv import load_dotenv
 
 
-class SignParams(BaseModel):
-    bucket: str
-    filename: str
-   
-
-
+load_dotenv()
 app = FastAPI()
 
 
@@ -22,35 +21,25 @@ def health_check():
     return {"status": "Healthy (GET /health received)"}
 
 
-@app.get("/")
+@app.get("/sign")
 def fetch_signURL(bucket: str, filename: str):
-    return { "GCS-URI": make_signed_upload_url(bucket, filename) }
+    return GCS_PUT_signedURL_SA(bucket, filename) 
 
 
-def make_signed_upload_url(bucket: str, blob: str,*, content_type="video/mp4",
-            exp: Optional[timedelta] = None, min_size=1, max_size=int(1e8)): 
+@app.get("/sign/key")
+def fetch_signURL(bucket: str, filename: str):
+    return GCS_PUT_signedURL_keyfile(bucket, filename)
+
+
+
+def GCS_PUT_signedURL_SA(bucket: str, blob: str,*, content_type="video/mp4",
+            exp: Optional[timedelta] = None, min_size=1, max_size=int(1e8)):  
     """
-    fetch GCS signed URL without private key (with GCP-SA) 
-    ----------
-    bucket : str
-        name of the GCS bucket the signed URL will reference.
-    blob : str
-        Name of the GCS blob (in `bucket`) the signed URL will reference.
-    exp : timedelta, optional
-        Time from now when the signed url will expire.
-    content_type : str, optional
-        The required mime type of the data that is uploaded to the generated
-        signed url.
-    min_size : int, optional
-        The minimum size the uploaded file can be, in bytes (inclusive).
-        If the file is smaller than this, GCS will return a 400 code on upload.
-    max_size : int, optional (100 mb default)
-        The maximum size the uploaded file can be, in bytes (inclusive).
-        If the file is larger than this, GCS will return a 400 code on upload.
+        Generate GCS (PUT) signed URL (without key file) - with SA
     """
     if exp is None:
         exp = timedelta(hours=1)
-    credentials, project_id = auth.default()
+    credentials, _ = auth.default()
     if credentials.token is None: 
         credentials.refresh(requests.Request())
     client = Client()
@@ -59,9 +48,31 @@ def make_signed_upload_url(bucket: str, blob: str,*, content_type="video/mp4",
     return blob.generate_signed_url(
         version="v4",
         expiration=exp,
-        service_account_email=credentials.service_account_email,
-        access_token=credentials.token, 
         method="PUT",
         content_type=content_type,
-        headers={"X-Goog-Content-Length-Range": f"{min_size},{max_size}"},
+        headers={"Content-Type": content_type},
+        credentials=credentials 
+    )
+
+
+def GCS_PUT_signedURL_keyfile(bucket: str, blob: str,*, content_type="video/mp4", exp: Optional[timedelta] = None, min_size=1, max_size=int(1e8)): 
+    """
+        Generate GCS (PUT) signed URL with SA key file 
+    """
+    if exp is None:
+        exp = timedelta(hours=1)
+
+    sa_path =  os.getenv('SA_FILE_PATH')
+    credentials = service_account.Credentials.from_service_account_file(sa_path)
+    client = Client(credentials=credentials, project=credentials.project_id)
+    bucket = client.get_bucket(bucket)
+    blob = bucket.blob(blob)
+
+    return blob.generate_signed_url(
+        version="v4",
+        expiration=exp,
+        method="PUT",
+        content_type=content_type,
+        headers={"Content-Type": content_type},
+        credentials=credentials,
     )

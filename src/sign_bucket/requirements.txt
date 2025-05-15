@@ -4,3 +4,4 @@ google-auth
 google-auth-oauthlib
 google-cloud-storage>=1.36.1
 uvicorn
+python-dotenv
