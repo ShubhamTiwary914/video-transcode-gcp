@@ -11,7 +11,7 @@ from pydantic import BaseModel
 class SignParams(BaseModel):
     bucket: str
     filename: str
-    content_type: Optional[str] = "video_mp4"
+   
 
 
 app = FastAPI()
@@ -24,15 +24,8 @@ def health_check():
 
 
 @app.get("/")
-def fetch_signURL(bucket: str, filename: str):
-    return { "GCS-URI": make_signed_upload_url(bucket, filename) }
-
-
-@app.post("/")
-def fetch_signURL_POST(params: SignParams):
-    return { "GCS-URI": make_signed_upload_url(params.bucket, params.filename, params.content_type) }
-
-
+def fetch_signURL(bucket: str, filename: str, content_type: str = "video/mp4"):
+    return { "GCS-URI": make_signed_upload_url(bucket, filename, content_type) }
 
 
 def make_signed_upload_url(bucket: str, blob: str,*, content_type="video/mp4",
@@ -67,8 +60,8 @@ def make_signed_upload_url(bucket: str, blob: str,*, content_type="video/mp4",
     return blob.generate_signed_url(
         version="v4",
         expiration=exp,
-        credentials=credentials,
         method="PUT",
         content_type=content_type,
-        headers={"x-goog-content-length-range": f"{min_size},{max_size}"} 
+        headers={"X-Goog-Content-Length-Range": f"{min_size},{max_size}"},
+        credentials=credentials 
     )
