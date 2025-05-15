@@ -17,15 +17,14 @@ class SignParams(BaseModel):
 app = FastAPI()
 
 
-
 @app.get("/health")
 def health_check():
     return {"status": "Healthy (GET /health received)"}
 
 
 @app.get("/")
-def fetch_signURL(bucket: str, filename: str, content_type: str = "video/mp4"):
-    return { "GCS-URI": make_signed_upload_url(bucket, filename, content_type) }
+def fetch_signURL(bucket: str, filename: str):
+    return { "GCS-URI": make_signed_upload_url(bucket, filename) }
 
 
 def make_signed_upload_url(bucket: str, blob: str,*, content_type="video/mp4",
