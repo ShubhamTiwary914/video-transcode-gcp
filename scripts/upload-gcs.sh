@@ -1,7 +1,14 @@
 #!/bin/bash
 
-sign=""
+
+source "$(pwd)/.env"
+
+
 filename=""
+signer_API="$SIGNER_API"
+bucket="$BUCKET_NAME"
+signed=""
+
 
 usage() {
   echo "Usage: $0 [OPTIONS]"
@@ -17,11 +24,7 @@ handle_options() {
       -h|--help)
         usage
         exit 0
-        ;;
-      -s|--sign)
-        shift
-        sign="$1"
-        ;;
+        ;; 
       -f|--file)
         shift
         filename="$1"
@@ -36,15 +39,33 @@ handle_options() {
   done
 }
 
+
+sign_url() { 
+  curl -sL -G "$signer_API?bucket=$bucket&filename=$filename" | jq -r '.'
+}
+
+
+
+#main execution ========
 handle_options "$@"
 
-# Validate inputs
-if [ -z "$sign" ] || [ -z "$filename" ]; then
-  echo "Error: Both --sign and --file are required."
+#check inputs
+if [ -z "$filename" ]; then
+  echo "Error: -f or --file (file-path) are required."
   usage
   exit 1
 fi
 
-curl -X PUT -H "Content-Type: application/octet-stream" \
-     --upload-file "$filename" \
-     "$sign"
+
+{
+  echo "Trying to sign URL..."
+  signed=$(sign_url)
+  echo "Signed successfully: $signed"
+
+  echo -e "\nUploading..."
+  curl -f -X PUT -H "Content-Type: video/mp4" --upload-file "$filename" "$signed"
+  echo "Upload successful, file: gs://$bucket/$filename"
+} || {
+  echo "Error occurred during signing or upload." >&2
+  exit 1
+}
