@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 from datetime import timedelta
+from pydantic import BaseModel
 
 from google import auth
 from google.auth.transport import requests
@@ -15,25 +16,30 @@ load_dotenv()
 app = FastAPI()
 
 
+class GCS_SignParams(BaseModel):
+    bucket: str
+    filename: str
+
+
 @app.get("/health")
 def health_check():
     return {"status": "Healthy (GET /health received)"}
 
 
 @app.get("/sign")
-def fetch_signURL(bucket: str, filename: str):
+def upload_GCS_sign_SA(bucket: str, filename: str):
     return GCS_signedURL_SA(bucket, filename, method="GET") 
 @app.post("/sign")
-def fetch_signURL(bucket: str, filename: str):
-    return GCS_signedURL_SA(bucket, filename, method="PUT") 
+def fetch_GCS_sign_SA(params: GCS_SignParams):
+    return GCS_signedURL_SA(params.bucket, params.filename, method="PUT") 
 
 
 @app.get("/sign/key")
-def fetch_signURL(bucket: str, filename: str):
+def fetch_GCS_sign_keyfile(bucket: str, filename: str):
     return GCS_signedURL_keyfile(bucket, filename, method="GET")
 @app.post("/sign/key")
-def fetch_signURL(bucket: str, filename: str):
-    return GCS_signedURL_keyfile(bucket, filename, method="PUT")
+def upload_GCS_sign_keyfile(params: GCS_SignParams):
+    return GCS_signedURL_keyfile(params.bucket, params.filename, method="PUT")
 
 
 
