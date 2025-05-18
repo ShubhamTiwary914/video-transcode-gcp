@@ -42,7 +42,7 @@ handle_options() {
 
 
 sign_url() { 
-  curl -sL -G "$signer_API?bucket=$bucket&filename=$filename" | jq -r '.'
+  curl -X PUT -sLv -H "Content-Length: $(stat -c%s $filepath)" "$signer_API?bucket=$bucket&filename=$filename" 
 }
 
 
@@ -65,15 +65,20 @@ fi
 
 filename=$(basename "$filepath")
 
-{
-  echo "Trying to sign URL..."
-  signed=$(sign_url)
-  echo "Signed successfully: $signed"
 
-  echo -e "\nUploading..."
-  curl -f -X PUT -H "Content-Type: video/mp4" --upload-file "$filepath" "$signed"
-  echo "Upload successful, file: gs://$bucket/$filename"
-} || {
-  echo "Error occurred during signing or upload." >&2
-  exit 1
-}
+sig=$(sign_url)
+echo $sig
+
+
+# {
+#   echo "Trying to sign URL..."
+#   signed=$(sign_url)
+#   echo "Signed successfully: $signed"
+
+#   echo -e "\nUploading..."
+#   curl -f -X PUT -H "Content-Type: video/mp4" --upload-file "$filepath" "$signed"
+#   echo "Upload successful, file: gs://$bucket/$filename"
+# } || {
+#   echo "Error occurred during signing or upload." >&2
+#   exit 1
+# }

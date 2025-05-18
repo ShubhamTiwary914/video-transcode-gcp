@@ -23,7 +23,7 @@ def health_check():
 @app.get("/sign")
 def fetch_signURL(bucket: str, filename: str):
     return GCS_signedURL_SA(bucket, filename, method="GET") 
-@app.put("/sign")
+@app.post("/sign")
 def fetch_signURL(bucket: str, filename: str):
     return GCS_signedURL_SA(bucket, filename, method="PUT") 
 
@@ -31,7 +31,7 @@ def fetch_signURL(bucket: str, filename: str):
 @app.get("/sign/key")
 def fetch_signURL(bucket: str, filename: str):
     return GCS_signedURL_keyfile(bucket, filename, method="GET")
-@app.put("/sign/key")
+@app.post("/sign/key")
 def fetch_signURL(bucket: str, filename: str):
     return GCS_signedURL_keyfile(bucket, filename, method="PUT")
 

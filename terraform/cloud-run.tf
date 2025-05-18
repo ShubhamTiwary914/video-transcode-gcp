@@ -1,6 +1,6 @@
 #Cloud run service  ========================================
 
-resource "google_cloud_run_v2_service" "default" {
+resource "google_cloud_run_v2_service" "signer" {
   name     = "sign-url-service"
   location = var.region
   deletion_protection = false
@@ -26,9 +26,9 @@ resource "google_cloud_run_v2_service" "default" {
 
 #public access (0.0.0.0/0) -> no auth 
 resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
-  name = google_cloud_run_v2_service.default.name
-  location        = google_cloud_run_v2_service.default.location   
-  project         = google_cloud_run_v2_service.default.project
+  name = google_cloud_run_v2_service.signer.name
+  location        = google_cloud_run_v2_service.signer.location   
+  project         = google_cloud_run_v2_service.signer.project
   role            = "roles/run.invoker"
   member          = "allUsers"
 }
