@@ -45,7 +45,6 @@ sign_url() {
 }
 
 
-
 #main execution ========
 handle_options "$@"
 
