@@ -17,12 +17,11 @@ input_validations(){
         exit 1
     fi
 
-    if [[ ! -f "$1" ]]; then
-        echo "File not found, exiting."
-        exit 1
-    fi
+    # if [[ ! -f "$1" ]]; then
+    #     echo "File not found, exiting."
+    #     exit 1
+    # fi
 }
-
 
 
 # start =========================

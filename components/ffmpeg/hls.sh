@@ -1,1 +1,0 @@
-ffmpeg -i testsrc.mp4 -c:v copy -c:a copy -f hls -hls_segment_filename data%02d.ts index.m3u8

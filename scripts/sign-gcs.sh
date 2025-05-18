@@ -1,5 +1,3 @@
-#!/bin/bash
-
 
 source "$(pwd)/.env"
 
@@ -42,7 +40,7 @@ handle_options() {
 
 
 sign_url() { 
-  curl -sL -G "$signer_API?bucket=$bucket&filename=$filename" | jq -r '.'
+  curl -sL -X GET "$signer_API?bucket=$bucket&filename=$filename" | jq -r '.'
 }
 
 
@@ -56,24 +54,6 @@ if [ -z "$filepath" ]; then
   exit 1
 fi
 
-if [[ ! -f "$filepath" ]]; then
-  echo "File not found, exiting."
-  usage
-  exit 1
-fi
-
 
 filename=$(basename "$filepath")
-
-{
-  echo "Trying to sign URL..."
-  signed=$(sign_url)
-  echo "Signed successfully: $signed"
-
-  echo -e "\nUploading..."
-  curl -f -X PUT -H "Content-Type: video/mp4" --upload-file "$filepath" "$signed"
-  echo "Upload successful, file: gs://$bucket/$filename"
-} || {
-  echo "Error occurred during signing or upload." >&2
-  exit 1
-}
+sign_url
