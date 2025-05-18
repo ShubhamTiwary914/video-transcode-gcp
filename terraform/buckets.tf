@@ -13,7 +13,7 @@ resource "google_storage_bucket" "temp" {
 
     cors {
       origin = ["*"]
-      method = ["PUT", "GET"]
+      method = ["*"]
       response_header = [
         "Content-Type",
         "Access-Control-Allow-Origin",

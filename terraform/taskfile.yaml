@@ -14,7 +14,10 @@ tasks:
     cmds:
       - terraform apply
 
-  destroy:
+  destroy-all:
     cmds:
       - terraform destroy
 
+  destroy-task-queue:
+    cmds:
+      - terraform destroy -target=google_cloud_tasks_queue.simple

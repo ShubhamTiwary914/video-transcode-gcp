@@ -24,6 +24,10 @@ variable "region_bucket" {
   description = "GCP Project region (for storage buckets)"
 }
 
+variable "region_queue" {
+  description = "GCP Project region supported (for task queue)"
+}
+
 variable "artifact_reponame" {
   description = "Repository name for Artifact Registry"
 }

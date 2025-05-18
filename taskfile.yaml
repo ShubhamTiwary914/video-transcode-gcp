@@ -1,5 +1,6 @@
 version: '3'
 
+dotenv: ['.env']
 
 includes:
   cmp: 
@@ -10,6 +11,7 @@ includes:
     taskfile: ./src
     dir: ./src
 
-  terraform:
+  tf:
     taskfile: ./terraform
     dir: ./terraform 
+

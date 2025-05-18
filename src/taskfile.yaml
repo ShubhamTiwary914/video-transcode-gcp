@@ -2,13 +2,23 @@ version: '3'
 
 
 tasks:
-  sign-compile:
+  gcs-sign-compile:
     dir: ./sign_bucket
     cmds: 
       - tsc --skipLibCheck
 
-  s3-sign-get:
+  gcs-sign-get:
     dir: ./sign_bucket/dist
     deps: [sign-compile]
     cmds: 
       - node sign.js
+
+  gcr-task-worker:
+    dir: ../scripts/
+    cmds: 
+      - ./run-gcr-tasker.sh
+
+  process-transcode:
+    dir: ./process_job
+    cmds:
+      - ./transcode.sh
