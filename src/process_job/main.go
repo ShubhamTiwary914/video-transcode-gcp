@@ -1,19 +1,31 @@
 package main
 
 import (
+	// "bufio"
 	"context"
 	"fmt"
+	"os/exec"
+
+	// "fmt"
 	"log"
 	"os"
 	"path/filepath"
+	Utils "processjob/utils"
 
 	"cloud.google.com/go/storage"
 	"github.com/fsnotify/fsnotify"
 	"github.com/joho/godotenv"
-	"google.golang.org/api/iterator"
+	// "github.com/joho/godotenv"
+	// "google.golang.org/api/iterator"
 )
 
 var HLSbucket string
+var ramfs_path string
+var logs_path string
+
+const DEBUG_MODE bool = false
+const channelBufferSize int8 = 100
+const streams int = 3
 
 // region methods
 // ====================
@@ -21,61 +33,60 @@ var HLSbucket string
 func main() {
 	godotenv.Load()
 	HLSbucket = os.Getenv("HLS_BUCKETNAME")
+	ramfs_path = os.Getenv("RAMFS_PATH")
+	logs_path = os.Getenv("LOGS_PATH")
+
+	loggers := make([]*Utils.LogWriter, streams)
+	Utils.SetupDirs(streams, ramfs_path, logs_path)
+	Utils.InitLoggers(loggers, streams, channelBufferSize)
 
 	ctx := context.Background()
 	cli, err := storage.NewClient(ctx)
 	defer cli.Close()
 	checkErr(err)
-	// bkt := cli.Bucket(HLSbucket)
 
-	//worker-coroutines (background offloads)
-	watcher, err := fsnotify.NewWatcher()
-	checkErr(err)
-	defer watcher.Close()
+	// worker-coroutines (background offloads)
+	watchers := make([]*fsnotify.Watcher, streams)
+	for i := 0; i < streams; i++ {
+		watchers[i], err = fsnotify.NewWatcher()
+		checkErr(err)
+		defer watchers[i].Close()
+		go GCS_offloader(watchers[i], loggers, i)
+		err := watchers[i].Add(fmt.Sprintf("%sstream_%d", ramfs_path, i))
+		checkErr(err)
+	}
 
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				log.Println("event:", event.Name, " ", event.Op)
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				log.Println("error:", err)
-			}
-		}
-	}()
-
-	err = watcher.Add("./out/stream_0")
+	cmd := exec.Command("bash", "./transcoder.sh", "./../../assets/trimmed_20.mp4")
+	// cmd.Stdin = os.Stdin
+	// cmd.Stdout = os.Stdout
+	err = cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	<-make(chan struct{})
 }
 
-func worker_routine(ctx context.Context, bkt *storage.BucketHandle, streamDir string) {
-}
-
-// list gcs objects in bucket
-func listGCS(ctx context.Context, bkt *storage.BucketHandle) {
-	it := bkt.Objects(ctx, nil)
+// offloads ffmpeg -> (ramfs/tmpfs) -> GCS bucket
+func GCS_offloader(watcher *fsnotify.Watcher, loggers []*Utils.LogWriter, index int) {
 	for {
-		attrs, err := it.Next()
-		if err == iterator.Done {
-			break
+		select {
+		case event, ok := <-watcher.Events:
+			if !ok {
+				return
+			}
+			log.Println("event:", event.Name, " ", event.Op)
+			loggers[index].Ch <- string(event.Name + " " + event.Op.String())
+
+		case err, ok := <-watcher.Errors:
+			if !ok {
+				return
+			}
+			log.Println("error:", err)
 		}
-		checkErr(err)
-		fmt.Println(attrs.Name, attrs.ContentType)
 	}
 }
 
 // upload file from local to gcs bucket
-func uploadGCS(ctx context.Context, bkt *storage.BucketHandle, file string) {
+func GCS_uploader(ctx context.Context, bkt *storage.BucketHandle, file string) {
 	data, err := os.ReadFile(file)
 	if err != nil {
 		log.Printf("read error: %v", err)
