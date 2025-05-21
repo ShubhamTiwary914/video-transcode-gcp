@@ -21,3 +21,7 @@ tasks:
   destroy-task-queue:
     cmds:
       - terraform destroy -target=google_cloud_tasks_queue.simple
+
+  destroy-cloud-run-signer:
+    cmds:
+      - terraform destroy -target=google_cloud_run_v2_service.signer
