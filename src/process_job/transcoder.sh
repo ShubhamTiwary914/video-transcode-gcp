@@ -73,10 +73,10 @@ ffmpeg_transcode_disk(){
         -hls_playlist_type vod \
         -hls_flags independent_segments \
         -hls_segment_type mpegts \
-        -hls_segment_filename ${RAMFS_PATH}stream_%v/data%03d.ts \
+        -hls_segment_filename ${TMPFS_PATH}/stream_%v/%04d.ts \
         -master_pl_name master.m3u8 \
         -var_stream_map "$VAR_STREAM_MAP" \
-        ${RAMFS_PATH}stream_%v/playlist.m3u8
+        ${TMPFS_PATH}/stream_%v/playlist.m3u8
 }
 
 
