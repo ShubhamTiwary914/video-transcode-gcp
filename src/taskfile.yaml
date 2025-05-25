@@ -18,7 +18,13 @@ tasks:
     cmds: 
       - ./run-gcr-tasker.sh
 
-  process-transcode:
+  process-run-dev:
     dir: ./process_job
     cmds:
-      - ./transcode.sh
+      - go run main.go
+
+  process-run-build:
+    dir: ./process_job
+    cmds:
+      - go build -v -o processjob 
+      - go run ./processjob 
