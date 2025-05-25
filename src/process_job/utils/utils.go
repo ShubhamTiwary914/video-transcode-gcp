@@ -4,21 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	Types "processjob/types"
 	"strconv"
 	"strings"
 )
-
-type LogWriter struct {
-	File *os.File
-	Ch   chan string
-	Path string
-}
-
-type UploadEvent struct {
-	FilePath string
-	StreamID int
-	FileID   string
-}
 
 var StreamResolutions = map[int]string{
 	0: "1080p",
@@ -26,12 +15,12 @@ var StreamResolutions = map[int]string{
 	2: "480p",
 }
 
-func InitLoggers(loggers []*LogWriter, streams int, logs_path string, channelBufferSize int8) {
+func InitLoggers(loggers []*Types.LogWriter, streams int, logs_path string, channelBufferSize int8) {
 	for ctr := 0; ctr < streams; ctr++ {
 		dir := fmt.Sprintf("%s/streams/stream_%d.txt", logs_path, ctr)
 		f, _ := os.Create(dir)
 		ch := make(chan string, channelBufferSize)
-		loggers[ctr] = &LogWriter{
+		loggers[ctr] = &Types.LogWriter{
 			File: f,
 			Ch:   ch,
 			Path: dir,
@@ -39,14 +28,32 @@ func InitLoggers(loggers []*LogWriter, streams int, logs_path string, channelBuf
 	}
 }
 
-func SetupDirs(streams int, tmpfs_path string, logs_path string) {
+func SetupDirs(streams int, Env *Types.TasksEnv) error {
+	//clean state
+	os.RemoveAll(Env.TMPFS_PATH)
+	os.RemoveAll(Env.LOGS_PATH)
+	//tmpfs dir: stream_i
 	for i := 0; i < streams; i++ {
-		os.MkdirAll(fmt.Sprintf("%s/stream_%d", tmpfs_path, i), 0755)
+		dir := filepath.Join(Env.TMPFS_PATH, fmt.Sprintf("stream_%d", i))
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("creating %s: %w", dir, err)
+		}
 	}
-	//reset stream logs
-	streamlogsPath := fmt.Sprintf("%s/streams", logs_path)
-	os.RemoveAll(streamlogsPath)
-	os.MkdirAll(streamlogsPath, 0755)
+	//stream logs
+	streamsLog := filepath.Join(Env.LOGS_PATH, "streams")
+	if err := os.MkdirAll(streamsLog, 0755); err != nil {
+		return fmt.Errorf("creating %s: %w", streamsLog, err)
+	}
+	//stdout/out.log
+	if err := os.MkdirAll(Env.OUT_PATH, 0755); err != nil {
+		return fmt.Errorf("creating %s: %w", Env.OUT_PATH, err)
+	}
+	outLog := filepath.Join(Env.OUT_PATH, "out.log")
+	f, err := os.Create(outLog)
+	if err != nil {
+		return fmt.Errorf("creating %s: %w", outLog, err)
+	}
+	return f.Close()
 }
 
 func GetFilePath_Split(path string) (string, string, string) {

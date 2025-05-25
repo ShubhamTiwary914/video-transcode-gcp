@@ -1,40 +1,37 @@
 package processjob
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
 
+	Types "processjob/types"
 	Utils "processjob/utils"
-
-	"cloud.google.com/go/storage"
-	"github.com/fsnotify/fsnotify"
 )
 
 // offloads ffmpeg -> (tmpfs/tmpfs) -> GCS bucket
-func GCS_offloader(watcher *fsnotify.Watcher, loggers []*Utils.LogWriter, streamID int, fileID string, processedCtr map[int]int, uploadCh chan Utils.UploadEvent) {
+func GCS_offloader(Env *Types.TasksEnv, Channels *Types.ChannelsContainer, Proc *Types.Processor, index int) {
 	for {
 		select {
-		case event, ok := <-watcher.Events:
+		case event, ok := <-Proc.Watchers[index].Events:
 			if !ok {
 				return
 			}
-			loggers[streamID].Ch <- string(event.Name + " " + event.Op.String())
+			Channels.Loggers[index].Ch <- string(event.Name + " " + event.Op.String())
 			//start upload after next CREATE
 			if event.Op.String() == "CREATE" {
 				dir, _, ext := Utils.GetFilePath_Split(event.Name)
-				targetFile := fmt.Sprintf("%s%04d.ts", dir, processedCtr[streamID]-1)
-				if ext == "m3u8" || processedCtr[streamID] > 0 {
-					uploadCh <- Utils.UploadEvent{FilePath: targetFile, StreamID: streamID, FileID: fileID}
+				targetFile := fmt.Sprintf("%s%04d.ts", dir, Proc.ProcessedCtr[index]-1)
+				if ext == "m3u8" || Proc.ProcessedCtr[index] > 0 {
+					Channels.UploadCh <- Types.UploadEvent{FilePath: targetFile, StreamID: index, FileID: Env.FILE_ID}
 				}
 				if ext != "m3u8" {
-					processedCtr[streamID]++
+					Proc.ProcessedCtr[index]++
 				}
 			}
-		case err, ok := <-watcher.Errors:
+		case err, ok := <-Proc.Watchers[index].Errors:
 			if !ok {
 				return
 			}
@@ -44,7 +41,7 @@ func GCS_offloader(watcher *fsnotify.Watcher, loggers []*Utils.LogWriter, stream
 }
 
 // upload files to HLS bucket
-func GCS_uploader(ctx context.Context, bkt *storage.BucketHandle, localFile string, streamID int, fileID string) {
+func GCS_uploader(Proc *Types.Processor, Env *Types.TasksEnv, localFile string, streamID int) {
 	start := time.Now()
 	data, err := os.ReadFile(localFile)
 	if err != nil {
@@ -53,14 +50,14 @@ func GCS_uploader(ctx context.Context, bkt *storage.BucketHandle, localFile stri
 	}
 	//filepath as it will appear in GCS bucket
 	filebase := filepath.Base(localFile)
-	gsFile := fmt.Sprintf("%s/%s/%s", fileID, Utils.StreamResolutions[streamID], filebase)
+	gsFile := fmt.Sprintf("%s/%s/%s", Env.FILE_ID, Utils.StreamResolutions[streamID], filebase)
 	//root of tmpfs (for master playlist)
 	if streamID == -1 {
-		gsFile = fmt.Sprintf("%s/%s", fileID, filebase)
+		gsFile = fmt.Sprintf("%s/%s", Env.FILE_ID, filebase)
 	}
 	//write to HLS-bucket
-	obj := bkt.Object(gsFile)
-	w := obj.NewWriter(ctx)
+	obj := Proc.Bkt.Object(gsFile)
+	w := obj.NewWriter(Proc.Ctx)
 	w.ChunkSize = 0 // no chunk upload (better for small files)
 	//delete local copy after upload
 	if err = os.Remove(localFile); err != nil {
