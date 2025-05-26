@@ -18,3 +18,11 @@ module "hls_bucket" {
   region_bucket = var.region_bucket
   user_SA = var.user_SA
 }
+
+//for performing mock-tests on
+module "mock_bucket" {
+  source = "./modules/"
+  bucket_name = "mock-${random_id.bucket_suffix.hex}"
+  region_bucket = var.region_bucket
+  user_SA = var.user_SA  
+}
