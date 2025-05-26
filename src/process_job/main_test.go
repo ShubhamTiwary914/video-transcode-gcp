@@ -7,12 +7,14 @@ import (
 	"path/filepath"
 	"testing"
 
+	GCS "processjob/gcs"
 	Types "processjob/types"
 	Utils "processjob/utils"
 
 	"cloud.google.com/go/storage"
 )
 
+// check if all env variables required are present + all bucket names in env are existing
 func TestNewEnvs(t *testing.T) {
 	env := Types.TasksEnv{}
 	NewEnvs(&env)
@@ -44,6 +46,7 @@ func TestNewEnvs(t *testing.T) {
 	}
 }
 
+// Check if Processor struct obj has proper setup (setup-dirs & bucket connection)
 func TestNewProcessor(t *testing.T) {
 	env := Types.TasksEnv{}
 	NewEnvs(&env)
@@ -83,15 +86,40 @@ func TestNewProcessor(t *testing.T) {
 	}
 }
 
-func TestFSWatchers(t *testing.T) {
-
-}
-
+// Check if GCS Uploadworker works -> upload "data.txt" & check
 func TestBucket_SingleMockUpload(t *testing.T) {
+	env := Types.TasksEnv{}
+	NewEnvs(&env)
+	env.HLS_BUCKET = os.Getenv("MOCK_BUCKETNAME")
 
+	proc := Types.Processor{}
+	NewProcessor(&proc, &env)
+
+	tmpDir := t.TempDir()
+	localPath := filepath.Join(tmpDir, "data.txt")
+
+	content := []byte("random test content")
+	if err := os.WriteFile(localPath, content, 0644); err != nil {
+		t.Fatalf("failed to write temp file: %v", err)
+	}
+	//upload
+	GCS.UploadWriter(&proc, localPath, "data.txt")
+
+	//check
+	obj := proc.Bkt.Object("data.txt")
+	_, err := obj.Attrs(proc.Ctx)
+	if err != nil {
+		t.Fatalf("uploaded file not found in bucket: %v", err)
+	}
+	//cleanup
+	if err := obj.Delete(proc.Ctx); err != nil {
+		t.Fatalf("failed to delete uploaded file: %v", err)
+	}
 }
 
-//region Utils
+func FullTestRun(t *testing.T) {
+
+}
 
 func bucketExists(t *testing.T, bucketName string) error {
 	t.Helper()

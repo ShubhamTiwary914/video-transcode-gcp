@@ -27,4 +27,9 @@ tasks:
     dir: ./process_job
     cmds:
       - go build -v -o processjob 
-      - go run ./processjob 
+      - go run ./processjob
+
+  process-run-test:
+    dir: ./process_job
+    cmds: 
+      - go test -v 

@@ -40,14 +40,9 @@ func GCS_offloader(Env *Types.TasksEnv, Channels *Types.ChannelsContainer, Proc 
 	}
 }
 
-// upload files to HLS bucket
+// upload file to HLS bucket
 func GCS_uploader(Proc *Types.Processor, Env *Types.TasksEnv, localFile string, streamID int) {
 	start := time.Now()
-	data, err := os.ReadFile(localFile)
-	if err != nil {
-		log.Printf("read error: %v", err)
-		return
-	}
 	//filepath as it will appear in GCS bucket
 	filebase := filepath.Base(localFile)
 	gsFile := fmt.Sprintf("%s/%s/%s", Env.FILE_ID, Utils.StreamResolutions[streamID], filebase)
@@ -56,13 +51,19 @@ func GCS_uploader(Proc *Types.Processor, Env *Types.TasksEnv, localFile string, 
 		gsFile = fmt.Sprintf("%s/%s", Env.FILE_ID, filebase)
 	}
 	//write to HLS-bucket
+	UploadWriter(Proc, localFile, gsFile)
+	end := time.Since(start)
+	log.Printf("Local: %s\tgsPath:%s\t (status: uploaded)  [%.2f secs]\n", localFile, gsFile, end.Seconds())
+}
+
+func UploadWriter(Proc *Types.Processor, localFile string, gsFile string) {
+	data, err := os.ReadFile(localFile)
+	if err != nil {
+		log.Panicf("read error: %v", err)
+	}
 	obj := Proc.Bkt.Object(gsFile)
 	w := obj.NewWriter(Proc.Ctx)
 	w.ChunkSize = 0 // no chunk upload (better for small files)
-	//delete local copy after upload
-	if err = os.Remove(localFile); err != nil {
-		log.Fatalf("failed deleting file: %v", err)
-	}
 	if _, err := w.Write(data); err != nil {
 		log.Fatalf("upload error: %v", err)
 		panic(err)
@@ -71,6 +72,8 @@ func GCS_uploader(Proc *Types.Processor, Env *Types.TasksEnv, localFile string, 
 		log.Fatalf("writer close error: %v", err)
 		panic(err)
 	}
-	end := time.Since(start)
-	log.Printf("Local: %s\tgsPath:%s\t (status: uploaded)  [%.2f secs]\n", localFile, gsFile, end.Seconds())
+	//delete local copy after upload
+	if err = os.Remove(localFile); err != nil {
+		log.Fatalf("failed deleting file: %v", err)
+	}
 }

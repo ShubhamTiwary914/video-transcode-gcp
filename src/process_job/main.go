@@ -47,7 +47,7 @@ func main() {
 
 	//>start worker co-routines + main(transcoder FFMPEG process)
 	Proc.Watchers = make([]*fsnotify.Watcher, streams)
-	startCoroutines(&Env, &Channels, &Types.Processor{})
+	startCoroutines(&Env, &Channels, &Proc)
 	for i := 0; i < streams; i++ {
 		defer Proc.Watchers[i].Close()
 	}
