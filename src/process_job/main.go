@@ -63,7 +63,13 @@ func main() {
 
 func NewEnvs(Env *Types.TasksEnv) {
 	godotenv.Load()
-	Env.HLS_BUCKET = os.Getenv("HLS_BUCKETNAME")
+	//pass env["MODE"] = test (for tests - uses mock-bucket) [default = hls-bucket]
+	mode := os.Getenv("MODE")
+	if mode == "test" {
+		Env.HLS_BUCKET = os.Getenv("MOCK_BUCKETNAME")
+	} else {
+		Env.HLS_BUCKET = os.Getenv("HLS_BUCKETNAME")
+	}
 	Env.TMPFS_PATH = os.Getenv("TMPFS_PATH")
 	Env.LOGS_PATH = os.Getenv("LOGS_PATH")
 	Env.FILE_ID = os.Getenv("FILE_ID")
@@ -139,6 +145,5 @@ func uploadPlaylists(Env *Types.TasksEnv, Proc *Types.Processor) {
 func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err)
-		panic(err)
 	}
 }
