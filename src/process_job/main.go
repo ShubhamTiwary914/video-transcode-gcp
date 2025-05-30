@@ -34,8 +34,9 @@ func main() {
 
 	NewEnvs(&Env)
 	if err := Utils.SetupDirs(streams, &Env); err != nil {
-		log.Fatalf("SetupDirs failed: %v", err)
+		log.Panicf("SetupDirs failed: %v", err)
 	}
+	fmt.Println("Directories Setup done!")
 	NewProcessor(&Proc, &Env)
 	defer Proc.Cli.Close()
 
@@ -44,14 +45,19 @@ func main() {
 	Proc.ProcessedCtr = make(map[int]int, streams)
 
 	Utils.InitLoggers(Channels.Loggers, streams, Env.LOGS_PATH, logchannel_BufferSize)
+	fmt.Println("Channels Initialized!")
 
 	//>start worker co-routines + main(transcoder FFMPEG process)
 	Proc.Watchers = make([]*fsnotify.Watcher, streams)
 	startCoroutines(&Env, &Channels, &Proc)
+	fmt.Println("Coroutines Started!")
 	for i := 0; i < streams; i++ {
 		defer Proc.Watchers[i].Close()
 	}
+	fmt.Println("Starting the ffmpeg process: ")
 	cmd := exec.Command("bash", "./transcoder.sh", Env.INPUT_PATH)
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
 	err = cmd.Run()
 	if err != nil {
 		log.Fatal(err)
@@ -75,6 +81,8 @@ func NewEnvs(Env *Types.TasksEnv) {
 	Env.FILE_ID = os.Getenv("FILE_ID")
 	Env.INPUT_PATH = os.Getenv("INPUT_PATH")
 	Env.OUT_PATH = os.Getenv("OUT_PATH")
+
+	// fmt.Printf("ENV gathered: \n%s\n%s\n%s\n%s\n%s\n", Env.FILE_ID, Env.INPUT_PATH, Env.OUT_PATH, Env.TMPFS_PATH, Env.HLS_BUCKET)
 }
 
 func NewProcessor(Proc *Types.Processor, Env *Types.TasksEnv) {
