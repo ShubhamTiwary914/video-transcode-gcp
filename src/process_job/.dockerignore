@@ -1,0 +1,9 @@
+out/
+logs/
+
+.dockerignore
+.env
+
+main_test.go
+Dockerfile
+docker-compose.yaml

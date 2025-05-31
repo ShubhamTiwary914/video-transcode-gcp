@@ -28,14 +28,14 @@ input_validations(){
 input="$1"
 input_validations "$input"
 
-mkdir -p out
-cp "$input" ./out
-cd out || exit 1
+# mkdir -p out
+# cp "$input" ./out
+# cd out || exit 1
 
-input=$(basename $input)
+# input=$(basename $input)
 
 HAS_AUDIO=true
-check_audio_streams
+# check_audio_streams
 
 
 echo -e "HAS AUDIO:  $HAS_AUDIO\n\n\n"
@@ -60,9 +60,9 @@ VIDEO_CHAINS="[0:v]split=3[v1][v2][v3]; \
         [v3]scale=w=854:h=480[v3out]"
 
 
-# 2GB sized ramfs (cache on unix ram mounted fs)
 ffmpeg_transcode_disk(){
-    sudo ffmpeg -i "$input" \
+    sudo ffmpeg -headers "Content-Type: video/mp4" \
+        -i $input \
         -filter_complex "$VIDEO_CHAINS" \
             -map "[v1out]" -c:v:0 libx264 -b:v:0 5000k -maxrate:v:0 5350k -bufsize:v:0 7500k \
             -map "[v2out]" -c:v:1 libx264 -b:v:1 2800k -maxrate:v:1 2996k -bufsize:v:1 4200k \
@@ -78,6 +78,9 @@ ffmpeg_transcode_disk(){
         -var_stream_map "$VAR_STREAM_MAP" \
         ${TMPFS_PATH}/stream_%v/playlist.m3u8
 }
+
+
+
 
 
 ffmpeg_transcode_disk

@@ -32,4 +32,10 @@ tasks:
   process-run-test:
     dir: ./process_job
     cmds: 
-      - go test -v 
+      - go test -v
+
+  process-image-build:
+    dir: ./process_job
+    desc: build process-job image (pass argument - image name)
+    cmds:
+      - docker build -t {{.CLI_ARGS}} .
