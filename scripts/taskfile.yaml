@@ -6,14 +6,28 @@ vars:
   PYTHON_CMD: conda run -n {{.CONDA_ENV}} python
 
 tasks:
-  gcs-temp-download:
-    desc: get signed url (for download) from temp bucket (arg- filename.ext)
-    cmds:
-      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} download 
-
   gcr-run-signer-local:
     desc: run the gcs signer fastapi server (localhost:8090) 
     cmds:
       - ./run-gcr-signer.sh
 
-  
+  gcs-temp-download-local:
+    desc: (LOCAL signer) signed url for GCS download [arg - filename]
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} local download 
+
+  gcs-temp-upload-local:
+    desc: (LOCAL signer) signed url for GCS upload [arg - filename]
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} local upload 
+
+
+  gcs-temp-download-gcp:
+    desc: (GCP signer) signed url for GCS download [arg - filename]
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} gcp download 
+
+  gcs-temp-upload-gcp:
+    desc: (GCP signer) signed url for GCS upload [arg - filename]
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} gcp upload 
