@@ -23,9 +23,11 @@ tasks:
       - terraform destroy -target=google_cloud_tasks_queue.simple
 
   destroy-cloud-run-signer:
+    desc: destroy only the GCR (signer service) in terraform
     cmds:
       - terraform destroy -target=google_cloud_run_v2_service.signer
 
   clear-bucket-contents:
+    desc: clear all the files & folders under bucket
     cmds:
       - gsutil -m rm -r "gs://{{.CLI_ARGS}}/**"
