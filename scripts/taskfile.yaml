@@ -1,0 +1,19 @@
+version: '3'
+
+
+vars:
+  CONDA_ENV: gcp
+  PYTHON_CMD: conda run -n {{.CONDA_ENV}} python
+
+tasks:
+  gcs-temp-download:
+    desc: get signed url (for download) from temp bucket (arg- filename.ext)
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} download 
+
+  gcr-run-signer-local:
+    desc: run the gcs signer fastapi server (localhost:8090) 
+    cmds:
+      - ./run-gcr-signer.sh
+
+  

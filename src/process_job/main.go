@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 
+	"bytes"
 	"io"
 	"log"
 	"os"
@@ -26,7 +27,6 @@ const streams int = 3
 // region methods
 // ====================
 func main() {
-	var err error
 	start := time.Now()
 	Env := Types.TasksEnv{}
 	Proc := Types.Processor{}
@@ -55,16 +55,39 @@ func main() {
 		defer Proc.Watchers[i].Close()
 	}
 	fmt.Println("Starting the ffmpeg process: ")
-	cmd := exec.Command("bash", "./transcoder.sh", Env.INPUT_PATH)
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	err = cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
+	FFmpegProcess(&Env)
 	finalChecks(&Env, &Channels, &Proc)
 	end := time.Since(start)
 	log.Printf("Time taken: %.2f sec", end.Seconds())
+}
+
+func FFmpegProcess(Env *Types.TasksEnv) {
+
+	cmd := exec.Command("bash", "./transcoder.sh", Env.INPUT_PATH)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = io.MultiWriter(os.Stdout, &stdout)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+
+	fmt.Printf("Executing command: %s %s %s\n", "bash", "./transcoder.sh", Env.INPUT_PATH)
+	fmt.Printf("Working directory: %s\n", getWorkingDir())
+
+	err := cmd.Run()
+	if err != nil {
+		log.Printf("Command failed with error: %v", err)
+		log.Printf("Exit code: %d", cmd.ProcessState.ExitCode())
+		log.Printf("STDOUT output:\n%s", stdout.String())
+		log.Printf("STDERR output:\n%s", stderr.String())
+
+		//executable script exists?
+		if _, statErr := os.Stat("./transcoder.sh"); os.IsNotExist(statErr) {
+			log.Printf("ERROR: transcoder.sh file not found in current directory")
+		} else {
+			info, _ := os.Stat("./transcoder.sh")
+			log.Printf("transcoder.sh exists, permissions: %s", info.Mode())
+		}
+
+		log.Fatal(err)
+	}
 }
 
 func NewEnvs(Env *Types.TasksEnv) {
@@ -154,4 +177,12 @@ func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getWorkingDir() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "unknown"
+	}
+	return dir
 }

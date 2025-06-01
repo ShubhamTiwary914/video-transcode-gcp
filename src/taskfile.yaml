@@ -31,11 +31,29 @@ tasks:
 
   process-run-test:
     dir: ./process_job
+    desc: run unit tests for processjob go package
     cmds: 
-      - go test -v
+      - go test -v 
 
-  process-image-build:
+  process-container-build:
     dir: ./process_job
-    desc: build process-job image (pass argument - image name)
+    desc: build the process image, not rebuild all (with compose)
     cmds:
-      - docker build -t {{.CLI_ARGS}} .
+      - docker compose down
+      - docker compose up -d
+
+  process-container-rebuild:
+    dir: ./process_job
+    desc: rebuild the process image (with compose)
+    cmds:
+      - docker compose down
+      - COMPOSE_BAKE=true docker compose up --build -d
+
+  process-container-rebuild-force:
+    dir: ./process_job
+    desc: rebuild the process image (force-redo-all) (with compose)
+    cmds:
+      - docker compose down
+      - COMPOSE_BAKE=true docker compose build --no-cache
+      - docker compose up -d --force-recreate
+ 

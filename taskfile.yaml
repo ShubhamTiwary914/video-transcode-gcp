@@ -15,3 +15,6 @@ includes:
     taskfile: ./terraform
     dir: ./terraform 
 
+  script:
+    taskfile: ./scripts
+    dir: ./scripts

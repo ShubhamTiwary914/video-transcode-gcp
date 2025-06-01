@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from google import auth
 from google.auth.transport import requests
 from google.cloud.storage import Client
-from fastapi import FastAPI, Request
+from fastapi import FastAPI 
 from google.oauth2 import service_account
 
 from dotenv import load_dotenv
@@ -55,7 +55,7 @@ def GCS_signedURL_SA(bucket: str, blob: str,*, content_type="video/mp4",
         credentials.refresh(requests.Request())
     client = Client()
     bucket = client.get_bucket(bucket)
-    blob = bucket.blob(blob)
+    blob = bucket.blob(blob) 
     return blob.generate_signed_url(
         version="v4",
         expiration=exp,
@@ -67,20 +67,21 @@ def GCS_signedURL_SA(bucket: str, blob: str,*, content_type="video/mp4",
     )
 
 
-def GCS_signedURL_keyfile(bucket: str, blob: str,*, 
-        content_type="video/mp4", exp: Optional[timedelta] = None, min_size=1, max_size=int(1e8), method="PUT"): 
+def GCS_signedURL_keyfile(bucket: str, blob: str,*, content_type="video/mp4", exp: Optional[timedelta] = None, min_size=1, max_size=int(1e8), method="PUT"): 
     """
         Generate GCS (PUT) signed URL with SA key file 
     """
     if exp is None:
-        exp = timedelta(hours=1)
+        exp = timedelta(hours=12)
+
+    assert(bucket != "" and bucket != None)
+    assert(blob != "" and blob != None)
 
     sa_path =  os.getenv('SA_FILE_PATH') 
     credentials = service_account.Credentials.from_service_account_file(sa_path)
     client = Client(credentials=credentials, project=credentials.project_id)
     bucket = client.get_bucket(bucket)
-    blob = bucket.blob(blob)
-
+    blob = bucket.blob(blob) 
     return blob.generate_signed_url(
         version="v4",
         expiration=exp,

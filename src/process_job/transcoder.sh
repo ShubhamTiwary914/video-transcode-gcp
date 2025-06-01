@@ -61,7 +61,8 @@ VIDEO_CHAINS="[0:v]split=3[v1][v2][v3]; \
 
 
 ffmpeg_transcode_disk(){
-    sudo ffmpeg -headers "Content-Type: video/mp4" \
+    ffmpeg \
+        -headers "Content-Type: video/mp4" \
         -i $input \
         -filter_complex "$VIDEO_CHAINS" \
             -map "[v1out]" -c:v:0 libx264 -b:v:0 5000k -maxrate:v:0 5350k -bufsize:v:0 7500k \
@@ -78,9 +79,6 @@ ffmpeg_transcode_disk(){
         -var_stream_map "$VAR_STREAM_MAP" \
         ${TMPFS_PATH}/stream_%v/playlist.m3u8
 }
-
-
-
 
 
 ffmpeg_transcode_disk
