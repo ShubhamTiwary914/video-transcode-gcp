@@ -4,31 +4,25 @@ import requests
 from dotenv import load_dotenv
 
 
-
-
-filepath = ""
-filename = ""
-mode = None
-
 load_dotenv()
-signer_API = os.getenv("SIGNER_API")
 bucket= os.getenv("BUCKET_NAME")
 
 
-
-def sign_url_upload():
+def sign_url_upload(filepath, filename, signer_API):
     if(not os.path.isfile(filepath)):
         print("file doesn't exist")
         exit(1)
-    signed = requests.post(signer_API, json={
+    data = {
         "bucket": bucket,
         "filename": filename
-    })
+    }
+    print(data)
+    signed = requests.post(signer_API, json=data)
     signed.raise_for_status()
     return signed.text.strip('"')  
 
 
-def uploadFile(sign):
+def uploadFile(filepath, filename, sign):
     with open(filepath, "rb") as f:
         response = requests.put(
             sign, data=f,
@@ -39,7 +33,7 @@ def uploadFile(sign):
     if not response.raise_for_status():
         print(f"[200]file uploaded, at: gs://{bucket}/{filename}")
 
-def sign_url_download(filename):
+def sign_url_download(filename: str, signer_API: str) -> str:
     signed = requests.get(signer_API, params={
         "bucket": bucket,
         "filename": filename
@@ -51,19 +45,30 @@ def sign_url_download(filename):
 
 
 
+#args:  (1 - filename) (2 - local/gcp : signer) (3 - upload/download : mode)
 def main():
+    filepath = ""
+    filename = ""
+    mode = None
+    signer = None
+
     try:
+        if(len(sys.argv) < 4):
+            raise Exception("[arg-1]: filename, [arg-2]: signer(local/gcp), [arg-3]: mode(upload/download)")
         filepath = sys.argv[1]
         filename = os.path.basename(filepath)
-        mode = sys.argv[2]
-    except IndexError:
-        print("[arg-1]: filename, [arg-2]: mode(upload/download)")
+        signer = sys.argv[2]
+        mode = sys.argv[3]
+    except:
+        print("[arg-1]: filename, [arg-2]: signer(local/gcp), [arg-3]: mode(upload/download)")
         exit(1)
-    if mode == 'upload':
-        sign=sign_url_upload()
-        uploadFile(sign)
+    signer_API = os.getenv("SIGNER_API_LOCAL") if signer == 'local' else os.getenv("SIGNER_API_GCR")
+    if mode == 'upload': 
+        sign=sign_url_upload(filepath, filename, signer_API)
+        print(sign)
+        uploadFile(filepath, filename, sign)
     else:
-        print(sign_url_download(filename))
+        print(sign_url_download(filename, signer_API))
 
 
 

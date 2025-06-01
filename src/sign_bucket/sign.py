@@ -20,23 +20,26 @@ class GCS_SignParams(BaseModel):
     bucket: str
     filename: str
 
-
+@app.get("/health")
 @app.get("/health")
 def health_check():
     return {"status": "Healthy (GET /health received)"}
 
-
+@app.get("/sign/")
 @app.get("/sign")
 def upload_GCS_sign_SA(bucket: str, filename: str):
+    print(f"(GET params) bucket: {bucket} \t filename: {filename}")
     return GCS_signedURL_SA(bucket, filename, method="GET") 
+@app.post("/sign/")
 @app.post("/sign")
 def fetch_GCS_sign_SA(params: GCS_SignParams):
     return GCS_signedURL_SA(params.bucket, params.filename, method="PUT") 
 
-
+@app.get("/sign/key/")
 @app.get("/sign/key")
 def fetch_GCS_sign_keyfile(bucket: str, filename: str):
     return GCS_signedURL_keyfile(bucket, filename, method="GET")
+@app.post("/sign/key/")
 @app.post("/sign/key")
 def upload_GCS_sign_keyfile(params: GCS_SignParams):
     return GCS_signedURL_keyfile(params.bucket, params.filename, method="PUT")
@@ -46,7 +49,7 @@ def upload_GCS_sign_keyfile(params: GCS_SignParams):
 def GCS_signedURL_SA(bucket: str, blob: str,*, content_type="video/mp4",
             exp: Optional[timedelta] = None, min_size=1, max_size=int(1e8), method="PUT"):  
     """
-        Generate GCS (PUT) signed URL (without key file) - with SA
+        Generate GCS signed URL (without key file) - with SA
     """
     if exp is None:
         exp = timedelta(hours=12)
@@ -69,7 +72,7 @@ def GCS_signedURL_SA(bucket: str, blob: str,*, content_type="video/mp4",
 
 def GCS_signedURL_keyfile(bucket: str, blob: str,*, content_type="video/mp4", exp: Optional[timedelta] = None, min_size=1, max_size=int(1e8), method="PUT"): 
     """
-        Generate GCS (PUT) signed URL with SA key file 
+        Generate GCS signed URL with SA key file 
     """
     if exp is None:
         exp = timedelta(hours=12)
