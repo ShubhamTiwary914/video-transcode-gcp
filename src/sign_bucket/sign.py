@@ -49,7 +49,7 @@ def GCS_signedURL_SA(bucket: str, blob: str,*, content_type="video/mp4",
         Generate GCS (PUT) signed URL (without key file) - with SA
     """
     if exp is None:
-        exp = timedelta(hours=1)
+        exp = timedelta(hours=12)
     credentials, _ = auth.default()
     if credentials.token is None: 
         credentials.refresh(requests.Request())
