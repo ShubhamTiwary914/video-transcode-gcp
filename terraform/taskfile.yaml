@@ -10,9 +10,18 @@ tasks:
     cmds:
       - terraform plan
 
+  validate:
+    cmds:
+      - terraform validate
+
   apply:
     cmds:
       - terraform apply
+
+  apply-debug:
+    desc: apply TF changes in debug mode
+    cmds:
+      - TF_LOG=DEBUG terraform apply -auto-approve 2>&1 | tee tf_debug.log
 
   destroy-all:
     cmds:
