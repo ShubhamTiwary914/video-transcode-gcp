@@ -14,6 +14,7 @@ import (
 	Utils "processjob/utils"
 	"time"
 
+	"cloud.google.com/go/compute/metadata"
 	"cloud.google.com/go/storage"
 	"github.com/fsnotify/fsnotify"
 	"github.com/joho/godotenv"
@@ -65,9 +66,10 @@ func FFmpegProcess(Env *Types.TasksEnv) {
 
 	cmd := exec.Command("bash", "./transcoder.sh", Env.INPUT_PATH)
 	var stdout, stderr bytes.Buffer
-	cmd.Stdout = io.MultiWriter(os.Stdout, &stdout)
-	cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
-
+	if os.Getenv("FFMPEG_LOG") == "1" {
+		cmd.Stdout = io.MultiWriter(os.Stdout, &stdout)
+		cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+	}
 	fmt.Printf("Executing command: %s %s %s\n", "bash", "./transcoder.sh", Env.INPUT_PATH)
 	fmt.Printf("Working directory: %s\n", getWorkingDir())
 
@@ -75,17 +77,13 @@ func FFmpegProcess(Env *Types.TasksEnv) {
 	if err != nil {
 		log.Printf("Command failed with error: %v", err)
 		log.Printf("Exit code: %d", cmd.ProcessState.ExitCode())
-		log.Printf("STDOUT output:\n%s", stdout.String())
-		log.Printf("STDERR output:\n%s", stderr.String())
-
-		//executable script exists?
+		//check shell script exists?
 		if _, statErr := os.Stat("./transcoder.sh"); os.IsNotExist(statErr) {
 			log.Printf("ERROR: transcoder.sh file not found in current directory")
 		} else {
 			info, _ := os.Stat("./transcoder.sh")
 			log.Printf("transcoder.sh exists, permissions: %s", info.Mode())
 		}
-
 		log.Fatal(err)
 	}
 }
@@ -111,9 +109,34 @@ func NewEnvs(Env *Types.TasksEnv) {
 func NewProcessor(Proc *Types.Processor, Env *Types.TasksEnv) {
 	var err error
 	Proc.Ctx = context.Background()
+
+	// for gcp: check SA credentials
+	if metadata.OnGCE() {
+		log.Println("Running on GCP detected via metadata server")
+		email, err := metadata.Email("default")
+		if err != nil {
+			log.Printf("Error retrieving service account email: %v", err)
+		} else {
+			log.Printf("Effective service account email: %s", email)
+		}
+	} else {
+		log.Printf("Not running on GCP (or metadata unavailable)")
+	}
+
 	Proc.Cli, err = storage.NewClient(Proc.Ctx)
+	if err != nil {
+		log.Fatalf("Failed to create storage client: %v", err)
+	}
+
+	//bucket exists?
+	_, err = Proc.Cli.Bucket(Env.HLS_BUCKET).Attrs(Proc.Ctx)
+	if err != nil {
+		log.Printf("WARNING: Cannot access bucket '%s': %v", Env.HLS_BUCKET, err)
+	} else {
+		log.Printf("Bucket '%s' exists and is accessible", Env.HLS_BUCKET)
+	}
+
 	Proc.Bkt = Proc.Cli.Bucket(Env.HLS_BUCKET)
-	checkErr(err)
 	//stdout to logfile
 	logFile, err := os.OpenFile(fmt.Sprintf("%s/out.log", Env.OUT_PATH), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	checkErr(err)

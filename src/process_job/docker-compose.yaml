@@ -1,14 +1,15 @@
-version: '3'
 
 
 services:
   process:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     container_name: process-cont
     environment:
       - HLS_BUCKETNAME=hls-f9f45cdc
-      - FILE_ID=7ab3ca
-      - INPUT_PATH=https://storage.googleapis.com/temp-f9f45cdc/trimmed_20.mp4?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=user-o1%40concise-base-454512-t2.iam.gserviceaccount.com%2F20250530%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250530T112415Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=content-type%3Bhost&X-Goog-Signature=76f6269e4d4186da5caf3db3816f6d897cbd57ffd5020aa48d96ca2c461bf49b2cb6521c93f7bc2f67c0208d7e07317b0c8efe0053af67bbe5ec6d94a01f874ab8edf02ce4b06bf8f988931a72a41da18f26f1f2bf115618985b304bd83716db2370b0285dcf8f89ea4aada988b1211ad89aabb4fd4fcbf4fd6325ff5ee21f1a060e5120144821790dac9bf6448968c10c9cfa91978e82e7869e9471046f6a9c978f4852a925d97efd85ed35e162653a3e5e9a8565148cbefad972a9da09d3531faa4bb78f3e6f790a6d59b3245e00b2dd69b55a0607a163cb3e9df971e19d305825c32aec27c1b648149ef07c8a26ba4b9005f2df66cb1fc9dd618c3b4b71d9
-      - MODE=prod
+      - FILE_ID=test02908476
+      - INPUT_PATH=$SIGNED_URL_GET
+      - MODE=prod 
+
+

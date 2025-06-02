@@ -26,3 +26,4 @@ def queue_worker(payload: TaskPayload, req: Request) -> bool:
     if not payload.filepath.startswith("gs://"):
         raise HTTPException(status_code=400, detail="Invalid GCS filepath")
     return True
+
