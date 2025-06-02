@@ -24,6 +24,12 @@ variable "region_bucket" {
   description = "GCP Project region (for storage buckets)"
 }
 
+variable "hls_bucketname" {
+  description = "Bucketname for HLS (where HLS segments output streams out)"
+}
+
+
+
 variable "region_queue" {
   description = "GCP Project region supported (for task queue)"
 }
@@ -33,7 +39,11 @@ variable "artifact_reponame" {
 }
 
 variable "artifact_packagename_signbucket" {
-  description = "Package name under the Artifact Repository"
+  description = "Package name under the Artifact Repository [for sign-bucket]"
+}
+
+variable "artifact_packagename_processjob" {
+  description = "Package name under the Artifact Repository [for processjob]"
 }
 
 

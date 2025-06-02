@@ -56,4 +56,14 @@ tasks:
       - docker compose down
       - COMPOSE_BAKE=true docker compose build --no-cache
       - docker compose up -d --force-recreate
- 
+
+  process-container_end:
+    dir: ./process_job
+    cmds:
+      - docker compose down
+
+  process-dockerhub-deploy:
+    dir: ./process_job
+    desc: deploy the process-job container to dockerhub (arg - tag)
+    cmds:
+      - docker buildx build --platform linux/amd64 -t sardinesszsz/processjob:{{.CLI_ARGS}} --push .
