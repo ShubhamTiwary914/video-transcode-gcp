@@ -1,5 +1,5 @@
 steps:
-  - name: 'gcr.io/process-builders/docker:latest'
+  - name: 'gcr.io/cloud-builders/docker:latest'
    #build docker image and place in artifact repo/package
     args: [
       'build',
