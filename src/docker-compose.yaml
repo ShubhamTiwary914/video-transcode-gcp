@@ -6,5 +6,28 @@ services:
       context: ./sign_bucket
       dockerfile: Dockerfile
     ports:
-      - 8080:8080
-    image: signer-app
+      - 8080:8080 
+
+  job-runner:
+    build:
+      context: ./job_runner
+      dockerfile: Dockerfile.local
+    ports:
+      - 9027:9027
+    environment:
+      - MODE=prod
+      - REGION=asia-south2
+      - JOB_NAME=processjob
+      - PROJECT_ID=concise-base-454512-t2  
+
+  process-job:
+    build:
+      context: ./process_job
+      dockerfile: Dockerfile.local
+    container_name: process-cont
+    environment:
+      - HLS_BUCKETNAME=hls-f9f45cdc
+      - FILE_ID=test02908476
+      - INPUT_PATH=$SIGNED_URL_GET
+      - MODE=prod 
+

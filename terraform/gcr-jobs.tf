@@ -1,6 +1,6 @@
 resource "google_cloud_run_v2_job" "processjob" {
-  name     = "processjob"
-  location = "asia-south2"
+  name     = var.job_name 
+  location = var.region
 
   template {
     template {

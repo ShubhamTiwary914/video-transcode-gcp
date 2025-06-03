@@ -33,6 +33,10 @@ variable "region_queue" {
   description = "GCP Project region supported (for task queue)"
 }
 
+variable "job_name" {
+  description = "GCR job for FFMPEG -> GCS process' name"
+}
+
 variable "artifact_reponame" {
   description = "Repository name for Artifact Registry"
 }
