@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from google.cloud import run_v2
 from google.cloud.run_v2.types import RunJobRequest
@@ -13,12 +13,24 @@ load_dotenv()
 JOB_NAME = os.getenv("JOB_NAME")
 REGION = os.getenv("REGION")
 MODE = os.getenv("MODE")
+PROJECT_ID = os.getenv("PROJECT_ID")
+
 
 class JobRunRequest(BaseModel):
     file_id: str
     hls_bucketname: str
     input_path: str
     creds_file: bool = False
+
+@app.get("/healthcheck")
+def checkEnvs():
+    return {
+        "JOB_NAME": JOB_NAME,
+        "REGION": REGION,
+        "MODE": MODE,
+        "PROJECT_ID": PROJECT_ID
+    }
+
 
 
 @app.post("/job-run/")
@@ -31,7 +43,7 @@ async def run_job(req: JobRunRequest):
         creds, _ = default()
         client = run_v2.JobsClient(credentials=creds)
 
-    job_name = client.job_path(project=os.getenv("PROJECT_ID"), location=REGION, job=JOB_NAME)
+    job_name = client.job_path(project=PROJECT_ID, location=REGION, job=JOB_NAME)
 
     container_override = RunJobRequest.Overrides.ContainerOverride(
         env=[
