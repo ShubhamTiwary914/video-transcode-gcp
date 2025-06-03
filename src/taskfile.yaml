@@ -2,21 +2,16 @@ version: '3'
 
 
 tasks:
-  gcs-sign-compile:
+  gcr-run-signer-local:
     dir: ./sign_bucket
     cmds: 
-      - tsc --skipLibCheck
+      - ./run-gcr-signer.sh
 
-  gcs-sign-get:
-    dir: ./sign_bucket/dist
-    deps: [sign-compile]
-    cmds: 
-      - node sign.js
+  gcr-run-job-runner-local:
+    dir: ./job_runner
+    cmds:
+      - ./run-job-runner.sh
 
-  gcr-task-worker:
-    dir: ../scripts/
-    cmds: 
-      - ./run-gcr-tasker.sh
 
   process-run-dev:
     dir: ./process_job

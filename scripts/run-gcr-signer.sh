@@ -2,5 +2,5 @@
 source ~/.zshrc
 
 conda activate gcp
-cd ../src/sign_bucket/
+cd ./sign_bucket/
 uvicorn sign:app --reload --host 0.0.0.0 --port 8090

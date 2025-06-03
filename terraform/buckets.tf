@@ -5,7 +5,7 @@ resource "random_id" "bucket_suffix" {
 
 
 module "temp_bucket" {
-  source = "./modules/"
+  source = "./modules/bucket/"
   bucket_name = "temp-${random_id.bucket_suffix.hex}"
   region_bucket = var.region_bucket
   user_SA = var.user_SA
@@ -13,7 +13,7 @@ module "temp_bucket" {
 
 
 module "hls_bucket" {
-  source = "./modules/"
+  source = "./modules/bucket/"
   bucket_name = "hls-${random_id.bucket_suffix.hex}"
   region_bucket = var.region_bucket
   user_SA = var.user_SA
@@ -21,7 +21,7 @@ module "hls_bucket" {
 
 //for performing mock-tests on
 module "mock_bucket" {
-  source = "./modules/"
+  source = "./modules/bucket/"
   bucket_name = "mock-${random_id.bucket_suffix.hex}"
   region_bucket = var.region_bucket
   user_SA = var.user_SA  
