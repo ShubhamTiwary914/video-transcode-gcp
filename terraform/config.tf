@@ -29,7 +29,6 @@ variable "hls_bucketname" {
 }
 
 
-
 variable "region_queue" {
   description = "GCP Project region supported (for task queue)"
 }
@@ -45,7 +44,9 @@ variable "artifact_packagename_signbucket" {
 variable "artifact_packagename_processjob" {
   description = "Package name under the Artifact Repository [for processjob]"
 }
-
+variable "artifact_packagename_jobrunner" {
+  description = "Package name under the Artifact Repository [for jobrunner]"
+}
 
 variable "default_SA" {
   description = "Email of GCP default service account for the project"

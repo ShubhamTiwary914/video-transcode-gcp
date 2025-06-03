@@ -1,3 +1,5 @@
 fastapi
+uvicorn[standard]
+google-cloud-run
+google-auth
 pydantic
-uvicorn

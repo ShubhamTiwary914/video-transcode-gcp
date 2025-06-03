@@ -1,5 +1,8 @@
 FROM python:3.10-alpine 
 
+
+EXPOSE 8080
+
 WORKDIR /app
 COPY . .
 
