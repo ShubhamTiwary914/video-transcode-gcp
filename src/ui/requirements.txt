@@ -1,3 +1,4 @@
 rich
 python-dotenv
 tk
+google-cloud-pubsub

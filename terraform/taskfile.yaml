@@ -18,6 +18,10 @@ tasks:
     cmds:
       - terraform apply
 
+  list:
+    cmds:
+      - terraform state list
+
   apply-debug:
     desc: apply TF changes in debug mode
     cmds:
@@ -26,6 +30,10 @@ tasks:
   destroy-all:
     cmds:
       - terraform destroy
+
+  destroy-single:
+    cmds:
+      - terraform destroy -target={{.CLI_ARGS}}
 
   destroy-task-queue:
     cmds:
