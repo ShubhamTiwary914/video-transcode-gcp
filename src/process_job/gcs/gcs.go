@@ -7,8 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"context"
 	Types "processjob/types"
 	Utils "processjob/utils"
+
+	"cloud.google.com/go/pubsub"
 )
 
 // offloads ffmpeg -> (tmpfs/tmpfs) -> GCS bucket
@@ -76,4 +79,28 @@ func UploadWriter(Proc *Types.Processor, localFile string, gsFile string) {
 	if err = os.Remove(localFile); err != nil {
 		log.Fatalf("failed deleting file: %v", err)
 	}
+}
+
+func PublishStatus(Env *Types.TasksEnv, message string) error {
+	projectID := Env.PROJECT_ID
+	topicID := Env.PUB_TOPIC
+	ctx := context.Background()
+
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		return fmt.Errorf("pubsub.NewClient: %w", err)
+	}
+	defer client.Close()
+
+	topic := client.Topic(topicID)
+	result := topic.Publish(ctx, &pubsub.Message{
+		Data: []byte(message),
+	})
+
+	id, err := result.Get(ctx)
+	if err != nil {
+		return fmt.Errorf("publish.Get: %w", err)
+	}
+	log.Printf("Published message with ID: %s", id)
+	return nil
 }

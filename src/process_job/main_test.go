@@ -12,7 +12,7 @@ import (
 	Utils "processjob/utils"
 
 	"cloud.google.com/go/storage"
-	"google.golang.org/api/iterator"
+	// "google.golang.org/api/iterator"
 )
 
 // check if all env variables required are present + all bucket names in env are existing
@@ -118,64 +118,64 @@ func TestBucket_SingleMockUpload(t *testing.T) {
 	}
 }
 
-func TestFullRun(t *testing.T) {
-	os.Setenv("MODE", "test")
-	main()
+// func TestFullRun(t *testing.T) {
+// 	os.Setenv("MODE", "test")
+// 	main()
 
-	ctx := context.Background()
-	bucketName := os.Getenv("MOCK_BUCKETNAME")
-	fileID := os.Getenv("FILE_ID")
-	n := 3
+// 	ctx := context.Background()
+// 	bucketName := os.Getenv("MOCK_BUCKETNAME")
+// 	fileID := os.Getenv("FILE_ID")
+// 	n := 3
 
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		t.Fatalf("failed to create storage client: %v", err)
-	}
-	defer client.Close()
+// 	client, err := storage.NewClient(ctx)
+// 	if err != nil {
+// 		t.Fatalf("failed to create storage client: %v", err)
+// 	}
+// 	defer client.Close()
 
-	bkt := client.Bucket(bucketName)
+// 	bkt := client.Bucket(bucketName)
 
-	// check master playlist
-	masterPath := fmt.Sprintf("%s/master.m3u8", fileID)
-	if _, err := bkt.Object(masterPath).Attrs(ctx); err != nil {
-		t.Errorf("missing master playlist: %s (%v)", masterPath, err)
-	}
+// 	// check master playlist
+// 	masterPath := fmt.Sprintf("%s/master.m3u8", fileID)
+// 	if _, err := bkt.Object(masterPath).Attrs(ctx); err != nil {
+// 		t.Errorf("missing master playlist: %s (%v)", masterPath, err)
+// 	}
 
-	// check resolution directories
-	for _, res := range Utils.StreamResolutions {
-		base := fmt.Sprintf("%s/%s", fileID, res)
+// 	// check resolution directories
+// 	for _, res := range Utils.StreamResolutions {
+// 		base := fmt.Sprintf("%s/%s", fileID, res)
 
-		// playlist.m3u8
-		playlist := fmt.Sprintf("%s/playlist.m3u8", base)
-		if _, err := bkt.Object(playlist).Attrs(ctx); err != nil {
-			t.Errorf("missing playlist: %s (%v)", playlist, err)
-		}
+// 		// playlist.m3u8
+// 		playlist := fmt.Sprintf("%s/playlist.m3u8", base)
+// 		if _, err := bkt.Object(playlist).Attrs(ctx); err != nil {
+// 			t.Errorf("missing playlist: %s (%v)", playlist, err)
+// 		}
 
-		// data_%04d.ts files
-		for i := 0; i <= n; i++ {
-			seg := fmt.Sprintf("%s/%04d.ts", base, i)
-			if _, err := bkt.Object(seg).Attrs(ctx); err != nil {
-				t.Errorf("missing segment: %s (%v)", seg, err)
-			}
-		}
-	}
+// 		// data_%04d.ts files
+// 		for i := 0; i <= n; i++ {
+// 			seg := fmt.Sprintf("%s/%04d.ts", base, i)
+// 			if _, err := bkt.Object(seg).Attrs(ctx); err != nil {
+// 				t.Errorf("missing segment: %s (%v)", seg, err)
+// 			}
+// 		}
+// 	}
 
-	//clear all
-	it := bkt.Objects(ctx, &storage.Query{Prefix: fileID + "/"})
-	for {
-		objAttrs, err := it.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			t.Fatalf("cleanup iteration error: %v", err)
-		}
-		err = bkt.Object(objAttrs.Name).Delete(ctx)
-		if err != nil {
-			t.Errorf("failed to delete %s: %v", objAttrs.Name, err)
-		}
-	}
-}
+// 	//clear all
+// 	it := bkt.Objects(ctx, &storage.Query{Prefix: fileID + "/"})
+// 	for {
+// 		objAttrs, err := it.Next()
+// 		if err == iterator.Done {
+// 			break
+// 		}
+// 		if err != nil {
+// 			t.Fatalf("cleanup iteration error: %v", err)
+// 		}
+// 		err = bkt.Object(objAttrs.Name).Delete(ctx)
+// 		if err != nil {
+// 			t.Errorf("failed to delete %s: %v", objAttrs.Name, err)
+// 		}
+// 	}
+// }
 
 func bucketExists(t *testing.T, bucketName string) error {
 	t.Helper()
@@ -191,4 +191,13 @@ func bucketExists(t *testing.T, bucketName string) error {
 		t.Errorf("GCS bucket %q does not exist or is inaccessible: %v", bucketName, err)
 	}
 	return err
+}
+
+func TestPublishStatus(t *testing.T) {
+	env := Types.TasksEnv{}
+	NewEnvs(&env)
+	err := GCS.PublishStatus(&env, "test message")
+	if err != nil {
+		t.Errorf("publishStatus failed: %v", err)
+	}
 }

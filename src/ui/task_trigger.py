@@ -12,7 +12,7 @@ QUEUE = os.getenv("TASK_QUEUE")
 SERVICE_ACCOUNT = os.getenv("TASK_SERVICE_ACCOUNT")
 TARGET_URL = os.getenv("TASK_TARGET_URL")
 HLS_BUCKET = os.getenv("HLS_BUCKET")
-
+PUB_TOPIC = os.getenv("PUB_TOPIC")
 
 def random_id(length=12):
     chars = string.ascii_lowercase + string.digits + "_"
@@ -24,6 +24,7 @@ def trigger_task(download_url: str):
         "file_id": file_id,
         "hls_bucketname": HLS_BUCKET,
         "input_path": download_url,
+        "pub_topic": PUB_TOPIC,
         "creds_file": True
     }
 
