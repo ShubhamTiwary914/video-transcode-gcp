@@ -2,6 +2,12 @@ version: '3'
 
 
 tasks:
+  run-interface:
+    dir: ./ui
+    desc: Run the mian interface to start video transcoder 
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py main.py 
+
   gcr-run-signer-local:
     dir: ./sign_bucket
     cmds: 
@@ -62,3 +68,29 @@ tasks:
     desc: deploy the process-job container to dockerhub (arg - tag)
     cmds:
       - docker buildx build --platform linux/amd64 -t sardinesszsz/processjob:{{.CLI_ARGS}} --push .
+
+
+  gcs-temp-download-local:
+    desc: (LOCAL signer) signed url for GCS download [arg - filename]
+    dir: ./ui
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} local download 
+
+  gcs-temp-upload-local:
+    desc: (LOCAL signer) signed url for GCS upload [arg - filename]
+    dir: ./ui
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} local upload 
+
+
+  gcs-temp-download-gcp:
+    desc: (GCP signer) signed url for GCS download [arg - filename]
+    dir: ./ui
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_`ARGS}} gcp download 
+
+  gcs-temp-upload-gcp:
+    desc: (GCP signer) signed url for GCS upload [arg - filename]
+    dir: ./ui
+    cmds:
+      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py {{.CLI_ARGS}} gcp upload 
