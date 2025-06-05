@@ -6,7 +6,7 @@ tasks:
     dir: ./ui
     desc: Run the mian interface to start video transcoder 
     cmds:
-      - $(conda info --base)/envs/gcp/bin/python gcs-sign.py main.py 
+      - $(conda info --base)/envs/gcp/bin/python main.py 
 
   gcr-run-signer-local:
     dir: ./sign_bucket

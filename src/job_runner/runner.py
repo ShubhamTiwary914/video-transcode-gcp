@@ -20,7 +20,9 @@ class JobRunRequest(BaseModel):
     file_id: str
     hls_bucketname: str
     input_path: str
+    pub_topic : str #pub-topic after job done (completion status)
     creds_file: bool = False
+
 
 @app.get("/healthcheck")
 def checkEnvs():
@@ -30,7 +32,6 @@ def checkEnvs():
         "MODE": MODE,
         "PROJECT_ID": PROJECT_ID
     }
-
 
 
 @app.post("/job-run/")
@@ -47,10 +48,12 @@ async def run_job(req: JobRunRequest):
 
     container_override = RunJobRequest.Overrides.ContainerOverride(
         env=[
+            EnvVar(name="PROJECT_ID", value=PROJECT_ID),
             EnvVar(name="FILE_ID", value=req.file_id),
             EnvVar(name="HLS_BUCKETNAME", value=req.hls_bucketname),
             EnvVar(name="MODE", value=MODE),
             EnvVar(name="INPUT_PATH", value=req.input_path),
+            EnvVar(name="PUB_TOPIC", value=req.pub_topic)
         ]
     )
     overrides = RunJobRequest.Overrides(container_overrides=[container_override])

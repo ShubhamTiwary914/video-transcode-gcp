@@ -102,8 +102,12 @@ func NewEnvs(Env *Types.TasksEnv) {
 	Env.FILE_ID = os.Getenv("FILE_ID")
 	Env.INPUT_PATH = os.Getenv("INPUT_PATH")
 	Env.OUT_PATH = os.Getenv("OUT_PATH")
+	Env.PROJECT_ID = os.Getenv("PROJECT_ID")
+	Env.PUB_TOPIC = os.Getenv("PUB_TOPIC")
 
-	// fmt.Printf("ENV gathered: \n%s\n%s\n%s\n%s\n%s\n", Env.FILE_ID, Env.INPUT_PATH, Env.OUT_PATH, Env.TMPFS_PATH, Env.HLS_BUCKET)
+	fmt.Printf("ENV gathered: \n%s\n%s\n%s\n%s\n%s\n%s\n%s",
+		Env.FILE_ID, Env.INPUT_PATH, Env.OUT_PATH, Env.TMPFS_PATH, Env.HLS_BUCKET, Env.PROJECT_ID, Env.PUB_TOPIC,
+	)
 }
 
 func NewProcessor(Proc *Types.Processor, Env *Types.TasksEnv) {
@@ -151,6 +155,9 @@ func finalChecks(Env *Types.TasksEnv, Channels *Types.ChannelsContainer, Proc *T
 	Proc.UploadWg.Wait()
 	log.Println("\nUploading remaining playlists...")
 	uploadPlaylists(Env, Proc)
+	fmt.Println("Playlists Uploaded")
+	fmt.Println("\nPublishing Completion message (on pub-sub topic):")
+	GCS.PublishStatus(Env, Env.FILE_ID)
 	fmt.Println("\nDone... ")
 }
 

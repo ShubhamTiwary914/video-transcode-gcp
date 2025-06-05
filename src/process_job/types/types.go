@@ -16,6 +16,8 @@ type TasksEnv struct {
 	FILE_ID    string
 	INPUT_PATH string
 	OUT_PATH   string
+	PROJECT_ID string
+	PUB_TOPIC  string
 }
 
 type Processor struct {
