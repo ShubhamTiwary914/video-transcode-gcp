@@ -11,8 +11,8 @@ steps:
     dir: 'src/process_job'
 
 options:
-  #4 cpu, 8gb mem (x2 of default)
-  machineType: 'E2_MEDIUM'
+  #8 cpu, 8gb mem 
+  machineType: 'E2_HIGHCPU_8'
   logging: CLOUD_LOGGING_ONLY
 
 images:

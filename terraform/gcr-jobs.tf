@@ -19,9 +19,15 @@ resource "google_cloud_run_v2_job" "processjob" {
           name  = "HLS_BUCKETNAME"
           value = var.hls_bucketname
         }
+        env {
+          name = "MODE"
+          value = "prod"
+        }
       }
 
       service_account = var.user_SA
     }
   }
+
+  deletion_protection = false
 }
