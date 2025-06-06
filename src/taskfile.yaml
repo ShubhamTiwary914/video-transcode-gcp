@@ -69,7 +69,6 @@ tasks:
     cmds:
       - docker buildx build --platform linux/amd64 -t sardinesszsz/processjob:{{.CLI_ARGS}} --push .
 
-
   gcs-temp-download-local:
     desc: (LOCAL signer) signed url for GCS download [arg - filename]
     dir: ./ui

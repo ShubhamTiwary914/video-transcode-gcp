@@ -9,10 +9,11 @@ import (
 	"strings"
 )
 
+// higher->lower
 var StreamResolutions = map[int]string{
-	0: "1080p",
-	1: "720p",
-	2: "480p",
+	0: "stream_0", //1080p
+	1: "stream_1", //720p
+	2: "stream_2", //480p
 }
 
 func InitLoggers(loggers []*Types.LogWriter, streams int, logs_path string, channelBufferSize int8) {
