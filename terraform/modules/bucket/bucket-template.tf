@@ -38,3 +38,7 @@ resource "google_storage_bucket_iam_member" "bucket_admin" {
   member = "serviceAccount:${var.user_SA}"
 }
 
+
+output "bucket_name" {
+  value = google_storage_bucket.bucket_module.name
+}
