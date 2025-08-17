@@ -150,6 +150,11 @@ The received signed URL at the end, can be used to stream out video from sources
 - [Live Push](https://livepush.io/hlsplayer/index.html)
 - [VLC Media Player](https://www.videolan.org/vlc/)
 
+<br />
+
+if any trouble running the service, just mail me at 
+<a href="mailto:shubhamtiwary914@gmail.com">shubhamtiwary914@gmail.com</a> 
+or push up an issue
 
 
 
