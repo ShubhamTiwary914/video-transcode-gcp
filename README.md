@@ -3,6 +3,20 @@
 
 ## Context 
 
+
+- How do service like youtube adjust video quality automatically according to your network? Converting video to one resolution (ex: 1080p → 480p) is very CPU heavy job, so they're cached(preprocessed) beforehand, this process is transcoding
+
+
+- Then what happens next? Protocols like HLS (an application layer streaming protocol), that adjusts video bitrate according to your network rate can be used, which is called [Adaptive Bitrate streaming](https://www.cloudflare.com/learning/video/what-is-adaptive-bitrate-streaming/)  (tools like VLC, OBS allow this easily)
+
+- Services like Youtube, Twitch have had similar services (but now they probably have in house mechanisms)
+
+> [!NOTE]
+> So the goal is to simply do these transcoding jobs on serverless batch jobs, since these are bursty/random in nature, hence serverless jobs are better than running a continous VM
+
+---
+
+### What the service does overall:
 Transcodes video (with [FFMPEG](https://ffmpeg.org/)) -> into three variants of HLS segment playlists:
 - 1080p60 HLS 
 - 720p60 HLS
@@ -16,10 +30,6 @@ References (Overview for media/video transcoding):
 - [live transcoding for streaming in twitch](https://blog.twitch.tv/en/2017/10/10/live-video-transmuxing-transcoding-f-fmpeg-vs-twitch-transcoder-part-i-489c1c125f28/)
 - [transcoding in ffmpeg overview](https://ffmpeg.org/ffmpeg.html#Transcoding)
 
-
-Why do this? It allows for [Adaptive Bitrate streaming](https://www.cloudflare.com/learning/video/what-is-adaptive-bitrate-streaming/) over HLS (an application layer streaming protocol), that adjusts video bitrate according to network throughput.
-
-Services like Youtube, Twitch have had similar services (now they probably have in house mechanisms)
 
 <br />
 
